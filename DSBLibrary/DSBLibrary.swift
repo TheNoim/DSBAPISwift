@@ -9,7 +9,7 @@
 import Foundation
 import PromiseKit
 import Alamofire
-import DataCompression
+import DeflateSwift
 
 class DSB {
     
@@ -65,6 +65,31 @@ class DSB {
                 throw NSError(domain: "No cookies returned", code: 2, userInfo: nil);
             }
         }
+    }
+    
+    func decodeDSBData(data: String) throws -> String {
+        guard let StringViewBytes: [UInt8] = base64ToByteArray(base64String: data) else {
+            throw NSError(domain: "Failed to convert base64 to byte array", code: 10, userInfo: nil);
+        }
+        
+        var inflater = InflateStream()
+        var (inflated, err) = inflater.write(bytes: StringViewBytes, flush: true)
+        
+        if err != nil{
+            throw NSError(domain: "An error occurred: \(err)", code: 11, userInfo: nil);
+        }
+        
+        return "";
+    }
+    
+    // Src: https://stackoverflow.com/questions/28902455/convert-base64-string-to-byte-array-like-c-sharp-method-convert-frombase64string
+    private func base64ToByteArray(base64String: String) -> [UInt8]? {
+        if let nsdata = NSData(base64Encoded: base64String, options: .ignoreUnknownCharacters) {
+            var bytes = [UInt8](repeating: 0, count: nsdata.length)
+            nsdata.getBytes(&bytes)
+            return bytes
+        }
+        return nil;
     }
     
 }

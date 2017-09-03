@@ -1,6 +1,6 @@
 PODS:
   - Alamofire (4.5.0)
-  - DataCompression (2.0.1)
+  - DeflateSwift (0.0.7)
   - PromiseKit (4.4.0):
     - PromiseKit/Foundation (= 4.4.0)
     - PromiseKit/QuartzCore (= 4.4.0)
@@ -17,15 +17,24 @@ PODS:
     - PromiseKit/CorePromise
 
 DEPENDENCIES:
-  - DataCompression
+  - DeflateSwift (from `https://github.com/TheNoim/DeflateSwift.git`)
   - PromiseKit (~> 4.4)
   - PromiseKit/Alamofire
 
+EXTERNAL SOURCES:
+  DeflateSwift:
+    :git: https://github.com/TheNoim/DeflateSwift.git
+
+CHECKOUT OPTIONS:
+  DeflateSwift:
+    :commit: 6180c17b188dbdd571bb793501fbad670c37bd80
+    :git: https://github.com/TheNoim/DeflateSwift.git
+
 SPEC CHECKSUMS:
   Alamofire: f28cdffd29de33a7bfa022cbd63ae95a27fae140
-  DataCompression: 2ee34bbd53d55c37c529785643b6c208f7c87919
+  DeflateSwift: 4c086fc39999e0cdc2912a9e4e7b6d3283318a9a
   PromiseKit: ecf5fe92275d57ee77c9ede858af47a162e9b97e
 
-PODFILE CHECKSUM: e49c06198b2ee255d3342e42039cf5a144113cb1
+PODFILE CHECKSUM: 70ca627daeb21b4f92804e89b26f6aec87ea012d
 
 COCOAPODS: 1.2.1
