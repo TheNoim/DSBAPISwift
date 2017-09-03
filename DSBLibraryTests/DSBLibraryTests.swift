@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import PromiseKit
 @testable import DSBLibrary
 
 class DSBLibraryTests: XCTestCase {
@@ -22,15 +23,17 @@ class DSBLibraryTests: XCTestCase {
     }
     
     func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-    
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
+        let exp: XCTestExpectation = expectation(description: "Login");
+        
+        let dsb: DSB = DSB(with: "277162", and: "PlanMCG", and: nil);
+        dsb.login().then {cookies -> Void in
+            print("Finished, cookies: \(cookies)");
+            exp.fulfill();
+        }.catch {error -> Void in
+            print(error);
+            XCTFail("An error occurred: \(error)");
+        };
+        waitForExpectations(timeout: 10, handler: nil)
     }
     
 }

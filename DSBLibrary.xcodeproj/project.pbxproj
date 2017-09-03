@@ -7,9 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0B8B6BFF1DCAC999B1B216C6 /* Pods_DSBLibraryTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23DDFB6A4CC1B38EB6A81A1A /* Pods_DSBLibraryTests.framework */; };
+		96C7EA7C53BC8BFB1B036ED9 /* Pods_DSBLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 543A727661FA8C587D313F1D /* Pods_DSBLibrary.framework */; };
 		FB5BAEF81F5C6560008AC84D /* DSBLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB5BAEEE1F5C6560008AC84D /* DSBLibrary.framework */; };
 		FB5BAEFD1F5C6560008AC84D /* DSBLibraryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB5BAEFC1F5C6560008AC84D /* DSBLibraryTests.swift */; };
 		FB5BAEFF1F5C6560008AC84D /* DSBLibrary.h in Headers */ = {isa = PBXBuildFile; fileRef = FB5BAEF11F5C6560008AC84D /* DSBLibrary.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB5BAF091F5C6576008AC84D /* DSBLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB5BAF081F5C6576008AC84D /* DSBLibrary.swift */; };
+		FB5BAF0A1F5C6576008AC84D /* DSBLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB5BAF081F5C6576008AC84D /* DSBLibrary.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -23,12 +27,19 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		042C6E06709405C373932063 /* Pods-DSBLibrary.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DSBLibrary.release.xcconfig"; path = "Pods/Target Support Files/Pods-DSBLibrary/Pods-DSBLibrary.release.xcconfig"; sourceTree = "<group>"; };
+		061A23D2A85457D42F140DBC /* Pods-DSBLibraryTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DSBLibraryTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-DSBLibraryTests/Pods-DSBLibraryTests.release.xcconfig"; sourceTree = "<group>"; };
+		23DDFB6A4CC1B38EB6A81A1A /* Pods_DSBLibraryTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DSBLibraryTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		27018DB9FC88FD3EA6ABA0D1 /* Pods-DSBLibraryTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DSBLibraryTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-DSBLibraryTests/Pods-DSBLibraryTests.debug.xcconfig"; sourceTree = "<group>"; };
+		543A727661FA8C587D313F1D /* Pods_DSBLibrary.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DSBLibrary.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E6F2D62173388A178D1E3020 /* Pods-DSBLibrary.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DSBLibrary.debug.xcconfig"; path = "Pods/Target Support Files/Pods-DSBLibrary/Pods-DSBLibrary.debug.xcconfig"; sourceTree = "<group>"; };
 		FB5BAEEE1F5C6560008AC84D /* DSBLibrary.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DSBLibrary.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB5BAEF11F5C6560008AC84D /* DSBLibrary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DSBLibrary.h; sourceTree = "<group>"; };
 		FB5BAEF21F5C6560008AC84D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FB5BAEF71F5C6560008AC84D /* DSBLibraryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DSBLibraryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB5BAEFC1F5C6560008AC84D /* DSBLibraryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DSBLibraryTests.swift; sourceTree = "<group>"; };
 		FB5BAEFE1F5C6560008AC84D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FB5BAF081F5C6576008AC84D /* DSBLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DSBLibrary.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -36,6 +47,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				96C7EA7C53BC8BFB1B036ED9 /* Pods_DSBLibrary.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -44,18 +56,41 @@
 			buildActionMask = 2147483647;
 			files = (
 				FB5BAEF81F5C6560008AC84D /* DSBLibrary.framework in Frameworks */,
+				0B8B6BFF1DCAC999B1B216C6 /* Pods_DSBLibraryTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		29E5B068817A8DF77BC8A606 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				E6F2D62173388A178D1E3020 /* Pods-DSBLibrary.debug.xcconfig */,
+				042C6E06709405C373932063 /* Pods-DSBLibrary.release.xcconfig */,
+				27018DB9FC88FD3EA6ABA0D1 /* Pods-DSBLibraryTests.debug.xcconfig */,
+				061A23D2A85457D42F140DBC /* Pods-DSBLibraryTests.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		C24098475461B75383F12627 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				543A727661FA8C587D313F1D /* Pods_DSBLibrary.framework */,
+				23DDFB6A4CC1B38EB6A81A1A /* Pods_DSBLibraryTests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		FB5BAEE41F5C6560008AC84D = {
 			isa = PBXGroup;
 			children = (
 				FB5BAEF01F5C6560008AC84D /* DSBLibrary */,
 				FB5BAEFB1F5C6560008AC84D /* DSBLibraryTests */,
 				FB5BAEEF1F5C6560008AC84D /* Products */,
+				29E5B068817A8DF77BC8A606 /* Pods */,
+				C24098475461B75383F12627 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -73,6 +108,7 @@
 			children = (
 				FB5BAEF11F5C6560008AC84D /* DSBLibrary.h */,
 				FB5BAEF21F5C6560008AC84D /* Info.plist */,
+				FB5BAF081F5C6576008AC84D /* DSBLibrary.swift */,
 			);
 			path = DSBLibrary;
 			sourceTree = "<group>";
@@ -104,10 +140,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = FB5BAF021F5C6560008AC84D /* Build configuration list for PBXNativeTarget "DSBLibrary" */;
 			buildPhases = (
+				F4B4A09156386F5817171137 /* [CP] Check Pods Manifest.lock */,
 				FB5BAEE91F5C6560008AC84D /* Sources */,
 				FB5BAEEA1F5C6560008AC84D /* Frameworks */,
 				FB5BAEEB1F5C6560008AC84D /* Headers */,
 				FB5BAEEC1F5C6560008AC84D /* Resources */,
+				8516D5E155B3BB187E2CA4E8 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -122,9 +160,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = FB5BAF051F5C6560008AC84D /* Build configuration list for PBXNativeTarget "DSBLibraryTests" */;
 			buildPhases = (
+				A3760FAA7A53E9A55DD6559A /* [CP] Check Pods Manifest.lock */,
 				FB5BAEF31F5C6560008AC84D /* Sources */,
 				FB5BAEF41F5C6560008AC84D /* Frameworks */,
 				FB5BAEF51F5C6560008AC84D /* Resources */,
+				CC2516DBF6E0418039C1CC01 /* [CP] Embed Pods Frameworks */,
+				1367FFC5C46589A618C6D90D /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -148,6 +189,7 @@
 				TargetAttributes = {
 					FB5BAEED1F5C6560008AC84D = {
 						CreatedOnToolsVersion = 9.0;
+						LastSwiftMigration = 0900;
 						ProvisioningStyle = Automatic;
 					};
 					FB5BAEF61F5C6560008AC84D = {
@@ -191,11 +233,90 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		1367FFC5C46589A618C6D90D /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DSBLibraryTests/Pods-DSBLibraryTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8516D5E155B3BB187E2CA4E8 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DSBLibrary/Pods-DSBLibrary-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A3760FAA7A53E9A55DD6559A /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		CC2516DBF6E0418039C1CC01 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DSBLibraryTests/Pods-DSBLibraryTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F4B4A09156386F5817171137 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		FB5BAEE91F5C6560008AC84D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FB5BAF091F5C6576008AC84D /* DSBLibrary.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -204,6 +325,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FB5BAEFD1F5C6560008AC84D /* DSBLibraryTests.swift in Sources */,
+				FB5BAF0A1F5C6576008AC84D /* DSBLibrary.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -333,7 +455,9 @@
 		};
 		FB5BAF031F5C6560008AC84D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E6F2D62173388A178D1E3020 /* Pods-DSBLibrary.debug.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
@@ -347,6 +471,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.noim.DSBLibrary;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -354,7 +479,9 @@
 		};
 		FB5BAF041F5C6560008AC84D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 042C6E06709405C373932063 /* Pods-DSBLibrary.release.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
@@ -375,7 +502,9 @@
 		};
 		FB5BAF061F5C6560008AC84D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 27018DB9FC88FD3EA6ABA0D1 /* Pods-DSBLibraryTests.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = TZXX8B8FA4;
 				INFOPLIST_FILE = DSBLibraryTests/Info.plist;
@@ -389,7 +518,9 @@
 		};
 		FB5BAF071F5C6560008AC84D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 061A23D2A85457D42F140DBC /* Pods-DSBLibraryTests.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = TZXX8B8FA4;
 				INFOPLIST_FILE = DSBLibraryTests/Info.plist;

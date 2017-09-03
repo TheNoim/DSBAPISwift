@@ -1,0 +1,31 @@
+PODS:
+  - Alamofire (4.5.0)
+  - DataCompression (2.0.1)
+  - PromiseKit (4.4.0):
+    - PromiseKit/Foundation (= 4.4.0)
+    - PromiseKit/QuartzCore (= 4.4.0)
+    - PromiseKit/UIKit (= 4.4.0)
+  - PromiseKit/Alamofire (4.4.0):
+    - Alamofire (~> 4.0)
+    - PromiseKit/CorePromise
+  - PromiseKit/CorePromise (4.4.0)
+  - PromiseKit/Foundation (4.4.0):
+    - PromiseKit/CorePromise
+  - PromiseKit/QuartzCore (4.4.0):
+    - PromiseKit/CorePromise
+  - PromiseKit/UIKit (4.4.0):
+    - PromiseKit/CorePromise
+
+DEPENDENCIES:
+  - DataCompression
+  - PromiseKit (~> 4.4)
+  - PromiseKit/Alamofire
+
+SPEC CHECKSUMS:
+  Alamofire: f28cdffd29de33a7bfa022cbd63ae95a27fae140
+  DataCompression: 2ee34bbd53d55c37c529785643b6c208f7c87919
+  PromiseKit: ecf5fe92275d57ee77c9ede858af47a162e9b97e
+
+PODFILE CHECKSUM: e49c06198b2ee255d3342e42039cf5a144113cb1
+
+COCOAPODS: 1.2.1
