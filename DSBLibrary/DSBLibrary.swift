@@ -44,6 +44,7 @@ class DSB {
     }
     
     func login() -> Promise<[HTTPCookie]> {
+        print("Login");
         return Alamofire.request(
             self.urls["login"]!,
             method: .post,
@@ -70,87 +71,94 @@ class DSB {
     }
     
     func fetch() -> Promise<String> {
-        let data = String(data: try! JSONSerialization.data(withJSONObject: [
-            "UserId": "",
-            "UserPw": "",
-            "Abos": [],
-            "AppVersion": "2.3",
-            "Language": "de",
-            "AppId": "",
-            "Device": "WebApp",
-            "PushId": "",
-            "BundleId": "de.heinekingmedia.inhouse.dsbmobile.web",
-            "Date": Date().iso8601,
-            "LastUpdate": Date().iso8601,
-            "OsVersion": self.UserAgent
-        ], options: JSONSerialization.WritingOptions(rawValue: 0)), encoding: .utf8)!;
-        print("Data: \(data)");
-        let parameters = [
-            "req": [
-                "Data": try! self.encodeDSBData(data: data),
-                "DataType": 1
-            ]
-        ];
-        
-        return Alamofire.request(
-            self.urls["Data"]!,
-            method: .post,
-            parameters: parameters,
-            encoding: JSONEncoding.default,
-            headers: [
-                "User-Agent": self.UserAgent,
-                "Bundle_ID": "de.heinekingmedia.inhouse.dsbmobile.web",
-                "Referer": self.urls["main"]!,
-                "X-Request-With": "XMLHttpRequest",
-                "Cookie": self.sessionCookies.toString()
-            ]
-        ).responseJSON().then {response -> String in
-            let json: Dictionary<String, AnyObject> = response as! Dictionary<String, AnyObject>;
-            guard let d: String = json["d"] as? String else {
-                throw NSError(domain: "No d in response json", code: 20, userInfo: nil);
+        return self.validateLogin(with: self.sessionCookies).then {validate -> Promise<[HTTPCookie]> in
+            //print("Login validation: \(validate)")
+            if validate {
+                return Promise<[HTTPCookie]> {resolve, reject in
+                    resolve(self.sessionCookies);
+                };
+            } else {
+                return self.login();
             }
-            let uncompressedJSON: String = try! self.decodeDSBData(data: d);
-            guard let parsedJSON: Dictionary<String, AnyObject> = uncompressedJSON.toJSON() as? Dictionary<String, AnyObject> else {
-                throw NSError(domain: "Failed to parse json", code: 21, userInfo: nil);
-            }
-            guard let ResultCode: Int = parsedJSON["Resultcode"] as? Int else {
-                throw NSError(domain: "Failed to get resultcode from json", code: 22, userInfo: nil);
-            }
-            if ResultCode != 0 {
-                if let ResultStatusInfo: String = parsedJSON["ResultStatusInfo"] as? String {
-                    throw NSError(domain: "Resultcode isn't 0. Code: \(ResultCode) ResultStatusInfo: \(ResultStatusInfo)", code: 24, userInfo: nil);
-                } else {
-                    throw NSError(domain: "Resultcode isn't 0. Code: \(ResultCode) ResultStatusInfo: nil", code: 24, userInfo: nil);
-                }
-            }
-            return uncompressedJSON;
+        }.then {_ -> Promise<String> in
+            let data = String(data: try! JSONSerialization.data(withJSONObject: [
+                "UserId": "",
+                "UserPw": "",
+                "Abos": [],
+                "AppVersion": "2.3",
+                "Language": "de",
+                "AppId": "",
+                "Device": "WebApp",
+                "PushId": "",
+                "BundleId": "de.heinekingmedia.inhouse.dsbmobile.web",
+                "Date": Date().iso8601,
+                "LastUpdate": Date().iso8601,
+                "OsVersion": self.UserAgent
+                ], options: JSONSerialization.WritingOptions(rawValue: 0)), encoding: .utf8)!;
+            print("Data: \(data)");
+            let parameters = [
+                "req": [
+                    "Data": try! self.encodeDSBData(data: data),
+                    "DataType": 1
+                ]
+            ];
+            return Alamofire.request(
+                self.urls["Data"]!,
+                method: .post,
+                parameters: parameters,
+                encoding: JSONEncoding.default,
+                headers: [
+                    "User-Agent": self.UserAgent,
+                    "Bundle_ID": "de.heinekingmedia.inhouse.dsbmobile.web",
+                    "Referer": self.urls["main"]!,
+                    "X-Request-With": "XMLHttpRequest",
+                    "Cookie": self.sessionCookies.toString()
+                ]
+                ).responseJSON().then {response -> String in
+                    let json: Dictionary<String, AnyObject> = response as! Dictionary<String, AnyObject>;
+                    guard let d: String = json["d"] as? String else {
+                        throw NSError(domain: "No d in response json", code: 20, userInfo: nil);
+                    }
+                    let uncompressedJSON: String = try! self.decodeDSBData(data: d);
+                    guard let parsedJSON: Dictionary<String, AnyObject> = uncompressedJSON.toJSON() as? Dictionary<String, AnyObject> else {
+                        throw NSError(domain: "Failed to parse json", code: 21, userInfo: nil);
+                    }
+                    guard let ResultCode: Int = parsedJSON["Resultcode"] as? Int else {
+                        throw NSError(domain: "Failed to get resultcode from json", code: 22, userInfo: nil);
+                    }
+                    if ResultCode != 0 {
+                        if let ResultStatusInfo: String = parsedJSON["ResultStatusInfo"] as? String {
+                            throw NSError(domain: "Resultcode isn't 0. Code: \(ResultCode) ResultStatusInfo: \(ResultStatusInfo)", code: 24, userInfo: nil);
+                        } else {
+                            throw NSError(domain: "Resultcode isn't 0. Code: \(ResultCode) ResultStatusInfo: nil", code: 24, userInfo: nil);
+                        }
+                    }
+                    return uncompressedJSON;
+            };
         };
     }
     
-    private func validateLogin(sessionCookies: [HTTPCookie]?) -> Promise<Void> {
-        var sessioncookies: [HTTPCookie];
-        if let sc = sessionCookies {
-            sessioncookies = sc;
+    private func validateLogin(with sessionCookies: [HTTPCookie]?) -> Promise<Bool> {
+        var sc: [HTTPCookie];
+        if let sessioncookies = sessionCookies {
+            sc = sessioncookies;
         } else {
-            sessioncookies = self.sessionCookies;
+            sc = self.sessionCookies;
         }
-        
-        self.setCookies(cookies: sessioncookies, url: URL(string: self.urls["default"]!));
-        
         return Alamofire.request(
             self.urls["default"]!,
             method: .get,
             headers: [
-                "User-Agent": self.UserAgent
+                "User-Agent": self.UserAgent,
+                "Cookie": sc.toString()
             ]
-        ).validate(statusCode: 200..<200).response().then { _ -> Void in
-            return;
+        ).validate(statusCode: 0..<600).response().then { response -> Bool in
+            guard let path = response.1.url?.path else {
+                return false;
+            }
+            print(path);
+            return response.1.statusCode == 200 && path == "/default.aspx";
         }
-    }
-    
-    private func setCookies(cookies: [HTTPCookie], url: URL?) {
-        Alamofire.SessionManager.default.session.configuration.httpCookieStorage?.setCookies(cookies, for: url, mainDocumentURL: nil);
-        //Alamofire.SessionManager.default.session.configuration.httpCookieStorage?.
     }
     
     func decodeDSBData(data: String) throws -> String {

@@ -66,4 +66,22 @@ class DSBLibraryTests: XCTestCase {
         };
         waitForExpectations(timeout: 10, handler: nil)
     }
+    
+    func testFetchWithoutLogin() {
+        let exp: XCTestExpectation = expectation(description: "Fetch without Login");
+        
+        let dsb: DSB = DSB(with: "277162", and: "PlanMCG", and: nil);
+        
+        dsb.fetch().then { response -> Promise<String> in
+            print("Response 1: \(response)");
+            return dsb.fetch();
+        }.then {response -> Void in
+            print("Response 2: \(response)");
+            exp.fulfill();
+        }.catch { error -> Void in
+            XCTFail("An error occurred: \(error)")
+        }
+        
+        waitForExpectations(timeout: 10, handler: nil)
+    }
 }
