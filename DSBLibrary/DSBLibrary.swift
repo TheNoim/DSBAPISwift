@@ -23,7 +23,7 @@ class DSB {
     let urls: [String: String];
     
     // Variablen
-    var sessionCookie: [HTTPCookie];
+    var sessionCookies: [HTTPCookie];
     
     init(with username: String, and password: String, and optionalSessionCookie: [HTTPCookie]?) {
         self.username = username;
@@ -37,9 +37,9 @@ class DSB {
         ];
         
         if let sessionCookie = optionalSessionCookie {
-            self.sessionCookie = sessionCookie;
+            self.sessionCookies = sessionCookie;
         } else {
-            self.sessionCookie = [];
+            self.sessionCookies = [];
         }
     }
     
@@ -55,10 +55,11 @@ class DSB {
                 "User-Agent": self.UserAgent
             ]
         ).validate(statusCode: 200..<301).response().then {response -> [HTTPCookie] in
-            if let cookies = HTTPCookieStorage.shared.cookies {
+            print("Response: \(response)");
+            if let cookies = Alamofire.SessionManager.default.session.configuration.httpCookieStorage?.cookies {
                 if cookies.count > 1 {
-                    self.self.sessionCookie = cookies;
-                    return self.self.sessionCookie;
+                    self.self.sessionCookies = cookies;
+                    return self.self.sessionCookies;
                 } else {
                     throw NSError(domain: "Not enough cookies", code: 3, userInfo: nil);
                 }
@@ -66,6 +67,90 @@ class DSB {
                 throw NSError(domain: "No cookies returned", code: 2, userInfo: nil);
             }
         }
+    }
+    
+    func fetch() -> Promise<String> {
+        let data = String(data: try! JSONSerialization.data(withJSONObject: [
+            "UserId": "",
+            "UserPw": "",
+            "Abos": [],
+            "AppVersion": "2.3",
+            "Language": "de",
+            "AppId": "",
+            "Device": "WebApp",
+            "PushId": "",
+            "BundleId": "de.heinekingmedia.inhouse.dsbmobile.web",
+            "Date": Date().iso8601,
+            "LastUpdate": Date().iso8601,
+            "OsVersion": self.UserAgent
+        ], options: JSONSerialization.WritingOptions(rawValue: 0)), encoding: .utf8)!;
+        print("Data: \(data)");
+        let parameters = [
+            "req": [
+                "Data": try! self.encodeDSBData(data: data),
+                "DataType": 1
+            ]
+        ];
+        
+        return Alamofire.request(
+            self.urls["Data"]!,
+            method: .post,
+            parameters: parameters,
+            encoding: JSONEncoding.default,
+            headers: [
+                "User-Agent": self.UserAgent,
+                "Bundle_ID": "de.heinekingmedia.inhouse.dsbmobile.web",
+                "Referer": self.urls["main"]!,
+                "X-Request-With": "XMLHttpRequest",
+                "Cookie": self.sessionCookies.toString()
+            ]
+        ).responseJSON().then {response -> String in
+            let json: Dictionary<String, AnyObject> = response as! Dictionary<String, AnyObject>;
+            guard let d: String = json["d"] as? String else {
+                throw NSError(domain: "No d in response json", code: 20, userInfo: nil);
+            }
+            let uncompressedJSON: String = try! self.decodeDSBData(data: d);
+            guard let parsedJSON: Dictionary<String, AnyObject> = uncompressedJSON.toJSON() as? Dictionary<String, AnyObject> else {
+                throw NSError(domain: "Failed to parse json", code: 21, userInfo: nil);
+            }
+            guard let ResultCode: Int = parsedJSON["Resultcode"] as? Int else {
+                throw NSError(domain: "Failed to get resultcode from json", code: 22, userInfo: nil);
+            }
+            if ResultCode != 0 {
+                if let ResultStatusInfo: String = parsedJSON["ResultStatusInfo"] as? String {
+                    throw NSError(domain: "Resultcode isn't 0. Code: \(ResultCode) ResultStatusInfo: \(ResultStatusInfo)", code: 24, userInfo: nil);
+                } else {
+                    throw NSError(domain: "Resultcode isn't 0. Code: \(ResultCode) ResultStatusInfo: nil", code: 24, userInfo: nil);
+                }
+            }
+            return uncompressedJSON;
+        };
+    }
+    
+    private func validateLogin(sessionCookies: [HTTPCookie]?) -> Promise<Void> {
+        var sessioncookies: [HTTPCookie];
+        if let sc = sessionCookies {
+            sessioncookies = sc;
+        } else {
+            sessioncookies = self.sessionCookies;
+        }
+        
+        self.setCookies(cookies: sessioncookies, url: URL(string: self.urls["default"]!));
+        
+        return Alamofire.request(
+            self.urls["default"]!,
+            method: .get,
+            headers: [
+                "User-Agent": self.UserAgent
+            ]
+        ).validate(statusCode: 200..<200).response().then { _ -> Void in
+            return;
+        }
+    }
+    
+    private func setCookies(cookies: [HTTPCookie], url: URL?) {
+        Alamofire.SessionManager.default.session.configuration.httpCookieStorage?.setCookies(cookies, for: url, mainDocumentURL: nil);
+        //Alamofire.SessionManager.default.session.configuration.httpCookieStorage?.
     }
     
     func decodeDSBData(data: String) throws -> String {
@@ -109,6 +194,44 @@ class DSB {
     
 }
 
+extension Formatter {
+    static let iso8601: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .iso8601)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
+        return formatter
+    }()
+}
+extension Date {
+    var iso8601: String {
+        return Formatter.iso8601.string(from: self)
+    }
+}
+
+extension String {
+    var dateFromISO8601: Date? {
+        return Formatter.iso8601.date(from: self)   // "Mar 22, 2017, 10:22 AM"
+    }
+}
+
+extension HTTPCookie {
+    func toString() -> String {
+        return "\(self.name)=\(self.value); "
+    }
+}
+
+extension Array where Element : HTTPCookie {
+    func toString() -> String {
+        var cookies: String = "";
+        for c in self {
+            cookies += c.toString();
+        }
+        return cookies;
+    }
+}
+
 extension String {
     func base64Encoded() -> String? {
         if let data = self.data(using: .utf8) {
@@ -122,5 +245,10 @@ extension String {
             return String(data: data, encoding: .utf8)
         }
         return nil
+    }
+    
+    func toJSON() -> Any? {
+        guard let data = self.data(using: .utf8, allowLossyConversion: false) else { return nil }
+        return try? JSONSerialization.jsonObject(with: data, options: .mutableContainers)
     }
 }
