@@ -1,6 +1,6 @@
 PODS:
   - Alamofire (4.5.0)
-  - DeflateSwift (0.0.7)
+  - GzipSwift (4.0.0-beta.2)
   - PromiseKit (4.4.0):
     - PromiseKit/Foundation (= 4.4.0)
     - PromiseKit/QuartzCore (= 4.4.0)
@@ -17,24 +17,25 @@ PODS:
     - PromiseKit/CorePromise
 
 DEPENDENCIES:
-  - DeflateSwift (from `https://github.com/TheNoim/DeflateSwift.git`)
+  - GzipSwift (from `https://github.com/1024jp/GzipSwift.git`, branch `swift4`)
   - PromiseKit (~> 4.4)
   - PromiseKit/Alamofire
 
 EXTERNAL SOURCES:
-  DeflateSwift:
-    :git: https://github.com/TheNoim/DeflateSwift.git
+  GzipSwift:
+    :branch: swift4
+    :git: https://github.com/1024jp/GzipSwift.git
 
 CHECKOUT OPTIONS:
-  DeflateSwift:
-    :commit: 6180c17b188dbdd571bb793501fbad670c37bd80
-    :git: https://github.com/TheNoim/DeflateSwift.git
+  GzipSwift:
+    :commit: 72e16b884600b98ac77a871daecaea34aec87f8e
+    :git: https://github.com/1024jp/GzipSwift.git
 
 SPEC CHECKSUMS:
   Alamofire: f28cdffd29de33a7bfa022cbd63ae95a27fae140
-  DeflateSwift: 4c086fc39999e0cdc2912a9e4e7b6d3283318a9a
+  GzipSwift: 502e99b339a441575d762ba234e10250bc491d29
   PromiseKit: ecf5fe92275d57ee77c9ede858af47a162e9b97e
 
-PODFILE CHECKSUM: 70ca627daeb21b4f92804e89b26f6aec87ea012d
+PODFILE CHECKSUM: 98936b63a6379b1524febe73116de518c8f4b858
 
 COCOAPODS: 1.2.1

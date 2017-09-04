@@ -9,7 +9,8 @@
 import Foundation
 import PromiseKit
 import Alamofire
-import DeflateSwift
+import Gzip
+
 
 class DSB {
     
@@ -71,25 +72,39 @@ class DSB {
         guard let StringViewBytes: [UInt8] = base64ToByteArray(base64String: data) else {
             throw NSError(domain: "Failed to convert base64 to byte array", code: 10, userInfo: nil);
         }
-        
-        var inflater = InflateStream()
-        var (inflated, err) = inflater.write(bytes: StringViewBytes, flush: true)
-        
-        if err != nil{
-            throw NSError(domain: "An error occurred: \(err)", code: 11, userInfo: nil);
+        let compressedData: Data = Data(StringViewBytes);
+        let decompressed: Data = try compressedData.gunzipped()
+        //guard let decompressed: Data = try! compressedData.gunzipped() else {
+        //    throw NSError(domain: "Failed to decompresse data", code: 11, userInfo: nil);
+        //}
+        guard let decompressedString: String = String(data: decompressed, encoding: .utf8) else {
+            throw NSError(domain: "Failed to create string from uncompressed data", code: 12, userInfo: nil);
         }
-        
-        return "";
+        return decompressedString;
     }
     
-    // Src: https://stackoverflow.com/questions/28902455/convert-base64-string-to-byte-array-like-c-sharp-method-convert-frombase64string
+    func encodeDSBData(data: String) throws -> String {
+        let StringViewBytes: [UInt8] = Array(data.utf8);
+        let StringData: Data = Data(StringViewBytes);
+        let compressedData: Data = try StringData.gzipped();
+        //guard let compressedData: Data = try StringData.gzipped() else {
+        //    throw NSError(domain: "Failed to compresse string data.", code: 13, userInfo: nil);
+        //}
+        let base64String: String = compressedData.base64EncodedString();
+        return base64String;
+    }
+
     private func base64ToByteArray(base64String: String) -> [UInt8]? {
-        if let nsdata = NSData(base64Encoded: base64String, options: .ignoreUnknownCharacters) {
-            var bytes = [UInt8](repeating: 0, count: nsdata.length)
-            nsdata.getBytes(&bytes)
-            return bytes
+        // Src: https://stackoverflow.com/questions/28902455/convert-base64-string-to-byte-array-like-c-sharp-method-convert-frombase64string
+        //if let nsdata = NSData(base64Encoded: base64String, options: .ignoreUnknownCharacters) {
+        //    var bytes = [UInt8](repeating: 0, count: nsdata.length)
+        //    nsdata.getBytes(&bytes)
+        //    return bytes
+        //}
+        guard let data: Data = Data(base64Encoded: base64String, options: .ignoreUnknownCharacters) else {
+            return nil;
         }
-        return nil;
+        return [UInt8](data);
     }
     
 }

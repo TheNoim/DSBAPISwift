@@ -9,10 +9,8 @@ target 'DSBLibrary' do
   
   pod "PromiseKit", "~> 4.4";
   pod "PromiseKit/Alamofire";
-  #pod 'DataCompression';
-  #pod 'GzipSwift'
-  pod 'DeflateSwift', :git => 'https://github.com/TheNoim/DeflateSwift.git'
-  
+  pod "GzipSwift", :git => "https://github.com/1024jp/GzipSwift.git", :branch => "swift4"
+
   target 'DSBLibraryTests' do
     inherit! :search_paths
     # Pods for testing
