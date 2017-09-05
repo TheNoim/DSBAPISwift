@@ -15,17 +15,18 @@ import Gzip
 class DSB {
     
     // Constanten
-    let UserAgent: String = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.32 Safari/537.36";
+    private let UserAgent: String = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.32 Safari/537.36";
     
     // Variable Constanten
     let username: String;
     let password: String;
-    let urls: [String: String];
+    private let urls: [String: String];
+    private let debug: Bool;
     
     // Variablen
     var sessionCookies: [HTTPCookie];
     
-    init(with username: String, and password: String, and optionalSessionCookie: [HTTPCookie]?) {
+    init(with username: String, and password: String, and optionalSessionCookie: [HTTPCookie]?, enableDebug: Bool?) {
         self.username = username;
         self.password = password;
         self.urls = [
@@ -41,10 +42,15 @@ class DSB {
         } else {
             self.sessionCookies = [];
         }
+        if let debug = enableDebug {
+            self.debug = debug;
+        } else {
+            self.debug = false;
+        }
     }
     
     func login() -> Promise<[HTTPCookie]> {
-        print("Login");
+        //print("Login");
         return Alamofire.request(
             self.urls["login"]!,
             method: .post,
@@ -56,7 +62,7 @@ class DSB {
                 "User-Agent": self.UserAgent
             ]
         ).validate(statusCode: 200..<301).response().then {response -> [HTTPCookie] in
-            print("Response: \(response)");
+            //print("Response: \(response)");
             if let cookies = Alamofire.SessionManager.default.session.configuration.httpCookieStorage?.cookies {
                 if cookies.count > 1 {
                     self.self.sessionCookies = cookies;
@@ -70,9 +76,89 @@ class DSB {
         }
     }
     
+    func smartFetch() -> Promise<String> {
+        if self.sessionCookies.count > 1 {
+            return self.justFetch().recover(execute: { (error) -> Promise<String> in
+                self.print(message: "Recover justFetch()");
+                return self.login().then { _ -> Promise<String> in
+                    self.self.print(message: "Login successfully after recover.");
+                    return self.justFetch();
+                };
+            });
+        } else {
+            self.print(message: "Login")
+            return self.login().then { _ -> Promise<String> in
+                return self.justFetch();
+            };
+        }
+    }
+    
+    /*
+     A function to just fetch without checking
+     */
+    private func justFetch() -> Promise<String> {
+        return Alamofire.request(
+            self.urls["Data"]!,
+            method: .post,
+            parameters: self.buildData(),
+            encoding: JSONEncoding.default,
+            headers: [
+                "User-Agent": self.UserAgent,
+                "Bundle_ID": "de.heinekingmedia.inhouse.dsbmobile.web",
+                "Referer": self.urls["main"]!,
+                "X-Request-With": "XMLHttpRequest",
+                "Cookie": self.sessionCookies.toString()
+            ]
+        ).responseJSON().then { response -> String in
+            let json: Dictionary<String, AnyObject> = response as! Dictionary<String, AnyObject>;
+            guard let d: String = json["d"] as? String else {
+                throw NSError(domain: "No d in response json", code: 20, userInfo: nil);
+            }
+            let uncompressedJSON: String = try! self.decodeDSBData(data: d);
+            guard let parsedJSON: Dictionary<String, AnyObject> = uncompressedJSON.toJSON() as? Dictionary<String, AnyObject> else {
+                throw NSError(domain: "Failed to parse json", code: 21, userInfo: nil);
+            }
+            guard let ResultCode: Int = parsedJSON["Resultcode"] as? Int else {
+                throw NSError(domain: "Failed to get resultcode from json", code: 22, userInfo: nil);
+            }
+            self.print(message: "justFetch: \(uncompressedJSON)");
+            if ResultCode != 0 {
+                if let ResultStatusInfo: String = parsedJSON["ResultStatusInfo"] as? String {
+                    throw NSError(domain: "Resultcode isn't 0. Code: \(ResultCode) ResultStatusInfo: \(ResultStatusInfo)", code: 24, userInfo: nil);
+                } else {
+                    throw NSError(domain: "Resultcode isn't 0. Code: \(ResultCode) ResultStatusInfo: nil", code: 24, userInfo: nil);
+                }
+            }
+            return uncompressedJSON;
+        };
+    }
+    
+    private func buildData() -> Dictionary<String, Any> {
+        let data: String = String(data: try! JSONSerialization.data(withJSONObject: [
+            "UserId": "",
+            "UserPw": "",
+            "Abos": [],
+            "AppVersion": "2.3",
+            "Language": "de",
+            "AppId": "",
+            "Device": "WebApp",
+            "PushId": "",
+            "BundleId": "de.heinekingmedia.inhouse.dsbmobile.web",
+            "Date": Date().iso8601,
+            "LastUpdate": Date().iso8601,
+            "OsVersion": self.UserAgent
+            ], options: JSONSerialization.WritingOptions(rawValue: 0)), encoding: .utf8)!;
+        return [
+            "req": [
+                "Data": try! self.encodeDSBData(data: data),
+                "DataType": 1
+            ]
+        ];
+    }
+    
     func fetch() -> Promise<String> {
         return self.validateLogin(with: self.sessionCookies).then {validate -> Promise<[HTTPCookie]> in
-            //print("Login validation: \(validate)")
+            self.print(message: "Login validation: \(validate)")
             if validate {
                 return Promise<[HTTPCookie]> {resolve, reject in
                     resolve(self.sessionCookies);
@@ -81,60 +167,7 @@ class DSB {
                 return self.login();
             }
         }.then {_ -> Promise<String> in
-            let data = String(data: try! JSONSerialization.data(withJSONObject: [
-                "UserId": "",
-                "UserPw": "",
-                "Abos": [],
-                "AppVersion": "2.3",
-                "Language": "de",
-                "AppId": "",
-                "Device": "WebApp",
-                "PushId": "",
-                "BundleId": "de.heinekingmedia.inhouse.dsbmobile.web",
-                "Date": Date().iso8601,
-                "LastUpdate": Date().iso8601,
-                "OsVersion": self.UserAgent
-                ], options: JSONSerialization.WritingOptions(rawValue: 0)), encoding: .utf8)!;
-            print("Data: \(data)");
-            let parameters = [
-                "req": [
-                    "Data": try! self.encodeDSBData(data: data),
-                    "DataType": 1
-                ]
-            ];
-            return Alamofire.request(
-                self.urls["Data"]!,
-                method: .post,
-                parameters: parameters,
-                encoding: JSONEncoding.default,
-                headers: [
-                    "User-Agent": self.UserAgent,
-                    "Bundle_ID": "de.heinekingmedia.inhouse.dsbmobile.web",
-                    "Referer": self.urls["main"]!,
-                    "X-Request-With": "XMLHttpRequest",
-                    "Cookie": self.sessionCookies.toString()
-                ]
-                ).responseJSON().then {response -> String in
-                    let json: Dictionary<String, AnyObject> = response as! Dictionary<String, AnyObject>;
-                    guard let d: String = json["d"] as? String else {
-                        throw NSError(domain: "No d in response json", code: 20, userInfo: nil);
-                    }
-                    let uncompressedJSON: String = try! self.decodeDSBData(data: d);
-                    guard let parsedJSON: Dictionary<String, AnyObject> = uncompressedJSON.toJSON() as? Dictionary<String, AnyObject> else {
-                        throw NSError(domain: "Failed to parse json", code: 21, userInfo: nil);
-                    }
-                    guard let ResultCode: Int = parsedJSON["Resultcode"] as? Int else {
-                        throw NSError(domain: "Failed to get resultcode from json", code: 22, userInfo: nil);
-                    }
-                    if ResultCode != 0 {
-                        if let ResultStatusInfo: String = parsedJSON["ResultStatusInfo"] as? String {
-                            throw NSError(domain: "Resultcode isn't 0. Code: \(ResultCode) ResultStatusInfo: \(ResultStatusInfo)", code: 24, userInfo: nil);
-                        } else {
-                            throw NSError(domain: "Resultcode isn't 0. Code: \(ResultCode) ResultStatusInfo: nil", code: 24, userInfo: nil);
-                        }
-                    }
-                    return uncompressedJSON;
-            };
+            return self.justFetch();
         };
     }
     
@@ -156,7 +189,7 @@ class DSB {
             guard let path = response.1.url?.path else {
                 return false;
             }
-            print(path);
+            self.print(message: path);
             return response.1.statusCode == 200 && path == "/default.aspx";
         }
     }
@@ -167,9 +200,6 @@ class DSB {
         }
         let compressedData: Data = Data(StringViewBytes);
         let decompressed: Data = try compressedData.gunzipped()
-        //guard let decompressed: Data = try! compressedData.gunzipped() else {
-        //    throw NSError(domain: "Failed to decompresse data", code: 11, userInfo: nil);
-        //}
         guard let decompressedString: String = String(data: decompressed, encoding: .utf8) else {
             throw NSError(domain: "Failed to create string from uncompressed data", code: 12, userInfo: nil);
         }
@@ -180,24 +210,21 @@ class DSB {
         let StringViewBytes: [UInt8] = Array(data.utf8);
         let StringData: Data = Data(StringViewBytes);
         let compressedData: Data = try StringData.gzipped();
-        //guard let compressedData: Data = try StringData.gzipped() else {
-        //    throw NSError(domain: "Failed to compresse string data.", code: 13, userInfo: nil);
-        //}
         let base64String: String = compressedData.base64EncodedString();
         return base64String;
     }
 
     private func base64ToByteArray(base64String: String) -> [UInt8]? {
-        // Src: https://stackoverflow.com/questions/28902455/convert-base64-string-to-byte-array-like-c-sharp-method-convert-frombase64string
-        //if let nsdata = NSData(base64Encoded: base64String, options: .ignoreUnknownCharacters) {
-        //    var bytes = [UInt8](repeating: 0, count: nsdata.length)
-        //    nsdata.getBytes(&bytes)
-        //    return bytes
-        //}
         guard let data: Data = Data(base64Encoded: base64String, options: .ignoreUnknownCharacters) else {
             return nil;
         }
         return [UInt8](data);
+    }
+    
+    private func print(message: String) {
+        if self.debug {
+            Swift.print(message);
+        }
     }
     
 }
@@ -241,20 +268,6 @@ extension Array where Element : HTTPCookie {
 }
 
 extension String {
-    func base64Encoded() -> String? {
-        if let data = self.data(using: .utf8) {
-            return data.base64EncodedString()
-        }
-        return nil
-    }
-    
-    func base64Decoded() -> String? {
-        if let data = Data(base64Encoded: self) {
-            return String(data: data, encoding: .utf8)
-        }
-        return nil
-    }
-    
     func toJSON() -> Any? {
         guard let data = self.data(using: .utf8, allowLossyConversion: false) else { return nil }
         return try? JSONSerialization.jsonObject(with: data, options: .mutableContainers)
