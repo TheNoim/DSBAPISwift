@@ -2,9 +2,12 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:DSBLibrary.xcodeproj">
+      location = "group:/Users/nilsbergmann/Dev/DSBAPISwift/DSBLibrary.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Pods/Pods.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:DSBLibrary.xcodeproj">
    </FileRef>
 </Workspace>
