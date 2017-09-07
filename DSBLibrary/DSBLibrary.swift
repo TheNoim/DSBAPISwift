@@ -18,14 +18,22 @@ class DSB {
     private let UserAgent: String = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.32 Safari/537.36";
     
     // Variable Constanten
-    let username: String;
-    let password: String;
+    private let username: String;
+    private let password: String;
     private let urls: [String: String];
     private let debug: Bool;
     
     // Variablen
-    var sessionCookies: [HTTPCookie];
+    public var sessionCookies: [HTTPCookie];
     
+    /**
+     Initialize a new instance.
+     
+     - Parameter username: The username for your dsb login.
+     - Parameter password: The password
+     - Parameter optionalSessionCookie: (Optional) An array with session cookies to reuse sessions. Default: []
+     - Parameter enableDebug: (Optional) Print debug output. Default: false
+     */
     init(with username: String, and password: String, and optionalSessionCookie: [HTTPCookie]?, enableDebug: Bool?) {
         self.username = username;
         self.password = password;
@@ -49,6 +57,11 @@ class DSB {
         }
     }
     
+    /**
+     Login method. You don't need to run it manual. Both smartFetch() and fetch() will run it for you. It also will save the cookies, but only for this instance.
+     
+     - Returns: An array with session cookies.
+     */
     func login() -> Promise<[HTTPCookie]> {
         //print("Login");
         return Alamofire.request(
@@ -76,6 +89,11 @@ class DSB {
         }
     }
     
+    /**
+     Fetch data from dsbmobile, runs login method if you are not logged in. If you already have a session, it just tries to fetch the data and only if it fails, it will try to login.
+     
+     - Returns: Promise which resolves to a json string.
+     */
     func smartFetch() -> Promise<String> {
         if self.sessionCookies.count > 1 {
             return self.justFetch().recover(execute: { (error) -> Promise<String> in
@@ -93,9 +111,6 @@ class DSB {
         }
     }
     
-    /*
-     A function to just fetch without checking
-     */
     private func justFetch() -> Promise<String> {
         return Alamofire.request(
             self.urls["Data"]!,
@@ -156,6 +171,10 @@ class DSB {
         ];
     }
     
+    /**
+     Fetch data from dsbmobile. It automaticly runs the login method. If you are already logged in, it will check first if the session is valid with the validateLogin() method.
+     - Returns: A Promise which resolves with a json string.
+     */
     func fetch() -> Promise<String> {
         return self.validateLogin(with: self.sessionCookies).then {validate -> Promise<[HTTPCookie]> in
             self.print(message: "Login validation: \(validate)")
@@ -171,7 +190,13 @@ class DSB {
         };
     }
     
-    private func validateLogin(with sessionCookies: [HTTPCookie]?) -> Promise<Bool> {
+    /**
+     Validate already existing session cookies.
+ 
+     - Parameter sessionCookies: (Optional) An array of cookies to use. Default: self.sessionCookies
+     - Returns: An promise which resolves to an boolean
+     */
+    func validateLogin(with sessionCookies: [HTTPCookie]?) -> Promise<Bool> {
         var sc: [HTTPCookie];
         if let sessioncookies = sessionCookies {
             sc = sessioncookies;
@@ -194,7 +219,7 @@ class DSB {
         }
     }
     
-    func decodeDSBData(data: String) throws -> String {
+    private func decodeDSBData(data: String) throws -> String {
         guard let StringViewBytes: [UInt8] = base64ToByteArray(base64String: data) else {
             throw NSError(domain: "Failed to convert base64 to byte array", code: 10, userInfo: nil);
         }
@@ -206,7 +231,7 @@ class DSB {
         return decompressedString;
     }
     
-    func encodeDSBData(data: String) throws -> String {
+    private func encodeDSBData(data: String) throws -> String {
         let StringViewBytes: [UInt8] = Array(data.utf8);
         let StringData: Data = Data(StringViewBytes);
         let compressedData: Data = try StringData.gzipped();
@@ -229,7 +254,7 @@ class DSB {
     
 }
 
-extension Formatter {
+private extension Formatter {
     static let iso8601: DateFormatter = {
         let formatter = DateFormatter()
         formatter.calendar = Calendar(identifier: .iso8601)
@@ -239,37 +264,35 @@ extension Formatter {
         return formatter
     }()
 }
-extension Date {
+private extension Date {
     var iso8601: String {
         return Formatter.iso8601.string(from: self)
     }
 }
 
-extension String {
+private extension String {
     var dateFromISO8601: Date? {
         return Formatter.iso8601.date(from: self)   // "Mar 22, 2017, 10:22 AM"
     }
+    
+    func toJSON() -> Any? {
+        guard let data = self.data(using: .utf8, allowLossyConversion: false) else { return nil }
+        return try? JSONSerialization.jsonObject(with: data, options: .mutableContainers)
+    }
 }
 
-extension HTTPCookie {
+private extension HTTPCookie {
     func toString() -> String {
         return "\(self.name)=\(self.value); "
     }
 }
 
-extension Array where Element : HTTPCookie {
+private extension Array where Element : HTTPCookie {
     func toString() -> String {
         var cookies: String = "";
         for c in self {
             cookies += c.toString();
         }
         return cookies;
-    }
-}
-
-extension String {
-    func toJSON() -> Any? {
-        guard let data = self.data(using: .utf8, allowLossyConversion: false) else { return nil }
-        return try? JSONSerialization.jsonObject(with: data, options: .mutableContainers)
     }
 }
