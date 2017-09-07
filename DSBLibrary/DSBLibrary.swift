@@ -11,8 +11,10 @@ import PromiseKit
 import Alamofire
 import Gzip
 
-
-class DSB {
+/**
+ DSB Instance.
+ */
+public class DSB {
     
     // Constanten
     private let UserAgent: String = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.32 Safari/537.36";
@@ -24,6 +26,9 @@ class DSB {
     private let debug: Bool;
     
     // Variablen
+    /**
+     Where the dsb instance stores the session cookies.
+     */
     public var sessionCookies: [HTTPCookie];
     
     /**
@@ -34,7 +39,7 @@ class DSB {
      - Parameter optionalSessionCookie: (Optional) An array with session cookies to reuse sessions. Default: []
      - Parameter enableDebug: (Optional) Print debug output. Default: false
      */
-    init(with username: String, and password: String, and optionalSessionCookie: [HTTPCookie]?, enableDebug: Bool?) {
+    public init(with username: String, and password: String, and optionalSessionCookie: [HTTPCookie]?, enableDebug: Bool?) {
         self.username = username;
         self.password = password;
         self.urls = [
@@ -62,7 +67,7 @@ class DSB {
      
      - Returns: An array with session cookies.
      */
-    func login() -> Promise<[HTTPCookie]> {
+    public func login() -> Promise<[HTTPCookie]> {
         //print("Login");
         return Alamofire.request(
             self.urls["login"]!,
@@ -94,7 +99,7 @@ class DSB {
      
      - Returns: Promise which resolves to a json string.
      */
-    func smartFetch() -> Promise<String> {
+    public func smartFetch() -> Promise<String> {
         if self.sessionCookies.count > 1 {
             return self.justFetch().recover(execute: { (error) -> Promise<String> in
                 self.print(message: "Recover justFetch()");
@@ -122,7 +127,7 @@ class DSB {
                 "Bundle_ID": "de.heinekingmedia.inhouse.dsbmobile.web",
                 "Referer": self.urls["main"]!,
                 "X-Request-With": "XMLHttpRequest",
-                "Cookie": self.sessionCookies.toString()
+                "Cookie": self.sessionCookies.toCookieString()
             ]
         ).responseJSON().then { response -> String in
             let json: Dictionary<String, AnyObject> = response as! Dictionary<String, AnyObject>;
@@ -175,7 +180,7 @@ class DSB {
      Fetch data from dsbmobile. It automaticly runs the login method. If you are already logged in, it will check first if the session is valid with the validateLogin() method.
      - Returns: A Promise which resolves with a json string.
      */
-    func fetch() -> Promise<String> {
+    public func fetch() -> Promise<String> {
         return self.validateLogin(with: self.sessionCookies).then {validate -> Promise<[HTTPCookie]> in
             self.print(message: "Login validation: \(validate)")
             if validate {
@@ -196,7 +201,7 @@ class DSB {
      - Parameter sessionCookies: (Optional) An array of cookies to use. Default: self.sessionCookies
      - Returns: An promise which resolves to an boolean
      */
-    func validateLogin(with sessionCookies: [HTTPCookie]?) -> Promise<Bool> {
+    public func validateLogin(with sessionCookies: [HTTPCookie]?) -> Promise<Bool> {
         var sc: [HTTPCookie];
         if let sessioncookies = sessionCookies {
             sc = sessioncookies;
@@ -208,7 +213,7 @@ class DSB {
             method: .get,
             headers: [
                 "User-Agent": self.UserAgent,
-                "Cookie": sc.toString()
+                "Cookie": sc.toCookieString()
             ]
         ).validate(statusCode: 0..<600).response().then { response -> Bool in
             guard let path = response.1.url?.path else {
@@ -281,17 +286,27 @@ private extension String {
     }
 }
 
-private extension HTTPCookie {
-    func toString() -> String {
+public extension HTTPCookie {
+    /**
+     Convert HTTPCookie into an cookie string.
+     *Example*: If you want to use it as HTTP Cookie Header.
+     - Returns: HTTP Cookie Header String
+     */
+    func toCookieString() -> String {
         return "\(self.name)=\(self.value); "
     }
 }
 
-private extension Array where Element : HTTPCookie {
-    func toString() -> String {
+public extension Array where Element : HTTPCookie {
+    /**
+     Convert HTTPCookie array into an cookie string.
+     *Example*: If you want to use it as HTTP Cookie Header.
+     - Returns: HTTP Cookie Header String
+     */
+    func toCookieString() -> String {
         var cookies: String = "";
         for c in self {
-            cookies += c.toString();
+            cookies += c.toCookieString();
         }
         return cookies;
     }

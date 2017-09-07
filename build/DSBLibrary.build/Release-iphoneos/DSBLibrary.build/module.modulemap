@@ -1,0 +1,11 @@
+framework module DSBLibrary {
+  umbrella header "DSBLibrary.h"
+
+  export *
+  module * { export * }
+}
+
+module DSBLibrary.Swift {
+    header "DSBLibrary-Swift.h"
+    requires objc
+}

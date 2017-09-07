@@ -1,0 +1,33 @@
+{
+  'version': 0,
+  'case-sensitive': 'false',
+  'roots': [
+    {
+      'type': 'directory',
+      'name': "/Users/nilsbergmann/Dev/DSBAPISwift/build/Release-iphoneos/DSBLibrary.framework/Headers",
+      'contents': [
+        {
+          'type': 'file',
+          'name': "DSBLibrary-Swift.h",
+          'external-contents': "/Users/nilsbergmann/Dev/DSBAPISwift/build/Release-iphoneos/DSBLibrary.framework/Headers/DSBLibrary-Swift.h"
+        },
+        {
+          'type': 'file',
+          'name': "DSBLibrary.h",
+          'external-contents': "/Users/nilsbergmann/Dev/DSBAPISwift/DSBLibrary/DSBLibrary.h"
+        }
+      ]
+    },
+    {
+      'type': 'directory',
+      'name': "/Users/nilsbergmann/Dev/DSBAPISwift/build/Release-iphoneos/DSBLibrary.framework/Modules",
+      'contents': [
+        {
+          'type': 'file',
+          'name': "module.modulemap",
+          'external-contents': "/Users/nilsbergmann/Dev/DSBAPISwift/build/DSBLibrary.build/Release-iphoneos/DSBLibrary.build/module.modulemap"
+        }
+      ]
+    }
+  ]
+}

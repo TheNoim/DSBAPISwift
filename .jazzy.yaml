@@ -1,0 +1,11 @@
+output: docs/
+clean: true
+xcodebuild_arguments:
+  - -workspace
+  - DSBLibrary.xcworkspace
+  - -scheme
+  - DSBLibrary
+author: Noim
+author_urL: https://noim.io
+module: DSBLibrary
+github_url: https://github.com/TheNoim/DSBAPISwift
