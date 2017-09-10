@@ -10,6 +10,7 @@ import Foundation
 import PromiseKit
 import Alamofire
 import Gzip
+import SwiftyJSON
 
 /**
  DSB Instance.
@@ -174,6 +175,118 @@ public class DSB {
                 "DataType": 1
             ]
         ];
+    }
+    
+    /**
+     Use this function to find news, timetable and tiles in your response string.
+     
+     - Parameter json: The response string from fetch() or smartFetch()
+     - Parameter methodName: The method your try to find. Example: timetable
+     - Returns: A json array string. If it can't find your method it just returns nil.
+     */
+    public func getData(from json: String, methodName: String) -> String? {
+        let j = try! JSON(data: json.data(using: .utf8, allowLossyConversion: false)!);
+        return self.loopData(from: j, methodName: methodName);
+    }
+    
+    private func loopData(from json: JSON, methodName: String) -> String? {
+        self.print(message: "Start loop.");
+        for (key, subJSON):(String, JSON) in json {
+            self.print(message: "Key: \(key)");
+            // Hopefully found Method
+            if key == "MethodName" {
+                self.print(message: "!!!!!!!!!!!!!!!!Found MethodName field.");
+                if let method = subJSON.string {
+                    self.print(message: "=============Method: \(method)");
+                    if method == methodName {
+                        // Found Method
+                        self.print(message: "XXXXXXXXXXXXXFound required method. Method: \(method)");
+                        if json["Root"].type == .dictionary && json["Root"]["Childs"].type == .array{
+                            var allObjects: JSON = [];
+                            for (index,Childs):(String, JSON) in json["Root"]["Childs"] {
+                                self.print(message: "Child loop index: \(index)");
+                                var returnData: JSON = [];
+                                if let childsArray = Childs["Childs"].array {
+                                    if childsArray.count > 1 {
+                                        // Multiple values
+                                        self.print(message: "Use all childs and parent.");
+                                        var objects: [[String: Any]] = [];
+                                        for (_,ChildChild):(String, JSON) in Childs["Childs"] {
+                                            objects.append([
+                                                "id": ChildChild["Id"].stringValue,
+                                                "date": ChildChild["Date"].stringValue,
+                                                "title": ChildChild["Title"].stringValue,
+                                                "detail": ChildChild["Detail"].stringValue,
+                                                "preview": ChildChild["Preview"].stringValue
+                                            ]);
+                                        }
+                                        returnData = [
+                                            "objects": objects,
+                                            "id": Childs["Id"].stringValue,
+                                            "date": Childs["Date"].stringValue,
+                                            "title": Childs["Title"].stringValue
+                                        ];
+                                    }
+                                    if childsArray.count == 1 {
+                                        // Only one
+                                        self.print(message: "Use parent and index 0.");
+                                        returnData = [
+                                            "id": Childs["Id"].stringValue,
+                                            "date": Childs["Date"].stringValue,
+                                            "title": Childs["Title"].stringValue,
+                                            "secondTitle": Childs["Childs"][0]["Title"].stringValue,
+                                            "detail": Childs["Childs"][0]["Detail"].stringValue,
+                                            "preview": Childs["Childs"][0]["Preview"].stringValue
+                                        ];
+                                    }
+                                    if childsArray.count == 0 {
+                                        // Only parent data
+                                        self.print(message: "Use only parent data.");
+                                        returnData = [
+                                            "id": Childs["Id"].stringValue,
+                                            "date": Childs["Date"].stringValue,
+                                            "title": Childs["Title"].stringValue,
+                                            "detail": Childs["Detail"].stringValue,
+                                            "preview": Childs["Preview"].stringValue
+                                        ];
+                                    }
+                                } else {
+                                    // Only parent data
+                                    self.print(message: "Use only parent data.");
+                                    returnData = [
+                                        "id": Childs["Id"].stringValue,
+                                        "date": Childs["Date"].stringValue,
+                                        "title": Childs["Title"].stringValue,
+                                        "detail": Childs["Detail"].stringValue,
+                                        "preview": Childs["Preview"].stringValue
+                                    ];
+                                }
+                                allObjects.arrayObject?.append(returnData);
+                            }
+                            return allObjects.rawString();
+                        } else {
+                            self.print(message: "Root is not an dictornary or Root.Childs is not an array.");
+                        }
+                    }
+                }
+            }
+            self.print(message: "Type: \(subJSON.type)");
+            if subJSON.type == Type.array {
+                self.print(message: "Found array. Next loop.");
+                let r = self.loopData(from: subJSON, methodName: methodName);
+                if r != nil {
+                    return r;
+                }
+            }
+            if subJSON.type == Type.dictionary {
+                self.print(message: "Found object. Next loop.");
+                let r = self.loopData(from: subJSON, methodName: methodName);
+                if r != nil {
+                    return r;
+                }
+            }
+        }
+        return nil;
     }
     
     /**
